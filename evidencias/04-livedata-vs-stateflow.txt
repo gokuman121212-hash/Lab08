@@ -1,0 +1,32 @@
+LIVEDATA EN MVVM Y DIFERENCIAS CON NUESTRO ViewModel (StateFlow)
+
+LiveData es un contenedor de datos observable que respeta el ciclo de vida: solo notifica a los observadores que están activos (por ejemplo una Activity en pantalla) y deja de notificar cuando se destruyen, evitando fugas de memoria. Guarda el último valor y lo entrega a quien empiece a observar.
+
+Si el TaskViewModel usara LiveData sería así:
+
+    class TaskViewModel(private val dao: TaskDao) : ViewModel() {
+        private val _tasks = MutableLiveData<List<Task>>(emptyList())
+        val tasks: LiveData<List<Task>> = _tasks
+
+        fun addTask(description: String) {
+            viewModelScope.launch {
+                dao.insertTask(Task(description = description))
+                _tasks.value = dao.getAllTasks()
+            }
+        }
+    }
+
+    // En Compose (requiere la dependencia androidx.compose.runtime:runtime-livedata):
+    val tasks by viewModel.tasks.observeAsState(emptyList())
+
+DIFERENCIAS
+- Valor inicial: StateFlow SIEMPRE necesita uno; MutableLiveData puede crearse sin valor.
+- Ciclo de vida: LiveData lo maneja solo; con StateFlow en Compose hay que recolectarlo (collectAsState o collectAsStateWithLifecycle) para que respete el ciclo de vida.
+- Plataforma: LiveData es parte de Android Jetpack; StateFlow es de Kotlin (corrutinas) y sirve también fuera de Android.
+- Operadores: con Flow tenemos combine, map, filter, stateIn... (por eso el filtro del Ejercicio 1 se hace con combine). LiveData tiene menos operadores (map, switchMap).
+- Hilos: LiveData se asigna con value en el hilo principal (o postValue desde otro hilo); StateFlow se puede actualizar desde cualquier corrutina.
+- Room puede devolver LiveData o Flow directamente desde el DAO, de modo que la lista se actualice sola sin recargarla a mano.
+
+REFERENCIAS
+- LiveData (guía oficial): https://developer.android.com/topic/libraries/architecture/livedata
+- Consultas asincronas en Room (LiveData y Flow): https://developer.android.com/training/data-storage/room/async-queries

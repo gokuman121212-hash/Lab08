@@ -1,0 +1,15 @@
+POR QUE USAMOS suspend EN CADA FUNCIÓN DEL DAO
+
+Room no permite consultar la base de datos en el hilo principal, porque una lectura o escritura lenta congelaría la interfaz. Si se intenta, la app lanza una excepción que dice que no se puede acceder a la base de datos en el hilo principal porque podría bloquear la UI por mucho tiempo.
+
+La palabra suspend convierte la función del DAO en una función de corrutina. Room la ejecuta fuera del hilo principal y la corrutina que la llamo queda "suspendida" (sin bloquear el hilo) hasta que llega el resultado; después continua en la línea siguiente. Así el código se lee de forma secuencial, sin callbacks.
+
+En nuestro ViewModel se ve así: dentro de viewModelScope.launch { ... } llamamos a dao.insertTask(...) y luego a dao.getAllTasks(); la segunda línea espera a que termine la primera, pero la pantalla sigue respondiendo.
+
+Detalles utiles:
+- Room exige suspend (o un tipo asincrono como Flow, LiveData, RxJava) para las consultas; para usar corrutinas y Flow hay que agregar la dependencia room-ktx.
+- suspend se usa en consultas de una sola vez (insertar, actualizar, borrar, leer una lista). Para consultas que deben avisar cada vez que los datos cambian se usa Flow como tipo de retorno.
+
+REFERENCIAS
+- Escribir consultas asincronas en DAOs: https://developer.android.com/training/data-storage/room/async-queries
+- Tutorial de corrutinas con Room (Kodeco/raywenderlich): https://www.raywenderlich.com/7414647-coroutines-with-room-persistence-library

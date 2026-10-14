@@ -1,0 +1,24 @@
+PROYECTO CON UN DAO DE MUCHAS FUNCIONES
+
+Proyecto elegido: Now in Android (app oficial de ejemplo de Google, Kotlin + Jetpack Compose)
+Dirección: https://github.com/android/nowinandroid
+Archivo: NewsResourceDao.kt (dentro del modulo core/database; en GitHub presiona la tecla "t" y escribe NewsResourceDao para encontrarlo)
+
+PASOS PARA TU EVIDENCIA
+1. Abre el archivo en GitHub y copia la URL EXACTA del archivo en este informe.
+2. Toma una captura del DAO (o de la parte más interesante).
+3. Escribe 3 o 4 observaciones. Verifica cada una mirando el archivo antes de afirmarla.
+
+QUE BUSCAR (ideas para tus observaciones; confirmalas en el archivo)
+- A diferencia de nuestro TaskDao, las consultas de lectura devuelven Flow<List<...>> en vez de una lista con suspend: la UI se actualiza sola cuando cambia la tabla. En el repositorio de ese proyecto se usa así: getNewsResources(...) devuelve un Flow.
+- Operaciones de escritura tipo "upsert" (insertar o actualizar) y "insertar o ignorar" para las tablas de relación (por ejemplo upsertNewsResources e insertOrIgnoreTopicCrossRefEntities que se llaman desde el repositorio).
+- Consultas con parametros para filtrar (en el repositorio se pasa useFilterTopicIds para activar o no el filtro por temas), en vez de escribir una consulta distinta por cada caso.
+- Uso de @Transaction cuando una operación necesita varias consultas coherentes. Según la documentación de Android, @Transaction sobre un @Query con SELECT hace que se ejecute dentro de una transacción, útil cuando el resultado incluye relaciones consultadas por separado.
+- Borrados por lista de ids, que son más eficientes que borrar de uno en uno.
+
+COMPARACIÓN CON NUESTRO DAO
+Nuestro TaskDao tiene 4 funciones y una sola tabla. Un DAO real separa la lectura reactiva (Flow) de las escrituras (suspend), y cubre filtros, relaciones y sincronización.
+
+REFERENCIAS
+- Acceder a datos con DAOs: https://developer.android.com/training/data-storage/room/accessing-data
+- Anotación Transaction: https://developer.android.com/reference/kotlin/androidx/room/Transaction

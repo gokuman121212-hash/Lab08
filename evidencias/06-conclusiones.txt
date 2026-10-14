@@ -1,0 +1,11 @@
+CONCLUSIONES
+
+1. MVVM con flujo unidireccional me ayudó a ver de donde viene cada cambio: la vista no toca Room, solo manda eventos al ViewModel (addTask, toggleTaskCompletion, deleteTask, setFilter) y muestra el estado que le llega por StateFlow.
+
+2. Entendí que suspend junto con viewModelScope permite usar la base de datos sin bloquear el hilo principal y sin callbacks. Por eso Room rechaza las consultas normales en el hilo principal.
+
+3. Para el Ejercicio 1 elegí eliminar una tarea y filtrar tareas porque no obligan a cambiar el esquema de la base de datos. El filtro vive en el ViewModel como otro StateFlow combinado con la lista, y la pantalla solo dibuja lo que recibe. Eliminar se resolvió con @Delete en el DAO.
+
+4. Como opinión crítica, el proyecto mejoraría si el DAO devolviera Flow para no recargar la lista a mano, si hubiera un repositorio entre el ViewModel y el DAO, y si tuviera pruebas. También pediría confirmación antes de "Vaciar", porque borra todo sin preguntar.
+
+(Ajusta el texto a tu forma de escribir y agrega lo que tu aprendiste; la rúbrica pide una opinión técnica propia.)

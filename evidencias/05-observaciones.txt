@@ -1,0 +1,13 @@
+OBSERVACIONES
+
+1. Al agregar Room, la guía usa el plugin kapt. La plantilla actual de Android Studio ya trae el soporte de Kotlin integrado en AGP 9, y ahí el plugin kotlin-kapt de la guía no es compatible. Lo reemplacé por com.android.legacy-kapt con la misma versión de AGP, como indica la documentación de Android.
+
+2. En la guía la dependencia lifecycle-viewmodel-compose usa la variable room_version. Son librerías con numeración distinta, así que creé una variable aparte (lifecycle_version). También usé Room 2.8.4 en lugar de la 2.6.1 de la guía, porque esa versión es de 2023 y la plantilla actual trabaja con un Kotlin mucho más nuevo.
+
+3. En el código de la guía la base de datos y el ViewModel se crean dentro de setContent, y eso puede recrearlos cuando la interfaz se recompone. En la parte guiada los envolví en remember y en el ejercicio los pasé a un singleton (TaskDatabase.getInstance) con un ViewModelProvider.Factory.
+
+4. getAllTasks() es una consulta de una sola vez, no se actualiza sola. Por eso el ViewModel tiene que volver a pedir la lista después de insertar, actualizar o borrar, y es fácil olvidarse de hacerlo.
+
+5. Al agregar @Delete al DAO no cambié la estructura de la tabla, así que no hizo falta subir la versión de la base de datos ni escribir una migración.
+
+(Reescribe estas observaciones con lo que realmente te paso; si algo no te ocurrió, quitalo y pon el problema real que tuviste.)

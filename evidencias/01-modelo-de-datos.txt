@@ -1,0 +1,44 @@
+INVESTIGACIÓN: tipos de datos y configuraciones al crear el modelo de datos en Room
+
+Una entidad de Room es una clase de Kotlin marcada con @Entity; cada propiedad se convierte en una columna de la tabla. Room genera el esquema sin que escribamos SQL.
+
+1) Tipos de datos que Room guarda directamente (tipo Kotlin -> afinidad en SQLite)
+   - Int, Long, Short, Byte  -> INTEGER
+   - Boolean                 -> INTEGER (se guarda como 0 o 1)
+   - String                  -> TEXT
+   - Float, Double           -> REAL
+   - ByteArray               -> BLOB
+   Una propiedad que no acepta null en Kotlin se crea como NOT NULL; si es String? o Int? la columna acepta null.
+   Para tipos que Room no conoce (Date, enum, List, BigDecimal...) hay que escribir un @TypeConverter y registrarlo con @TypeConverters en la base de datos.
+
+2) Configuraciones dentro de @Entity(...)
+   - tableName: nombre de la tabla (por defecto usa el nombre de la clase).
+   - primaryKeys: clave primaria compuesta (varias columnas).
+   - indices: lista de @Index para acelerar búsquedas; con unique = true evita valores repetidos.
+   - foreignKeys: relaciones con otra tabla con @ForeignKey (entity, parentColumns, childColumns, onDelete = CASCADE, etc.).
+   - ignoredColumns: columnas que Room no debe guardar.
+
+3) Anotaciones sobre las propiedades
+   - @PrimaryKey: obligatoria en toda entidad. Con autoGenerate = true la clave la genera SQLite (como el id de Task).
+   - @ColumnInfo: personaliza la columna (name, typeAffinity, index, collate, defaultValue).
+   - @Ignore: la propiedad no se guarda (por ejemplo un Bitmap).
+   - @Embedded(prefix = ...): mete los campos de otra clase dentro de la misma tabla.
+   - @Relation (con @Junction para muchos a muchos): relaciones uno a muchos entre entidades, usada en clases de consulta.
+   - Tablas de búsqueda de texto completo con @Fts4.
+
+4) Configuración de la base de datos (@Database)
+   - entities: lista de entidades.
+   - version: número de versión del esquema (se sube al cambiar tablas y se acompaña de una migración).
+   - exportSchema y autoMigrations: exportar el esquema a JSON y migraciones automáticas.
+
+Aplicado a nuestro modelo Task:
+   id (Int, autoGenerate)  -> INTEGER PRIMARY KEY AUTOINCREMENT
+   description (String)    -> TEXT NOT NULL
+   is_completed (Boolean)  -> INTEGER NOT NULL (0 = pendiente, 1 = completada)
+
+REFERENCIAS
+- Definir datos con entidades de Room: https://developer.android.com/training/data-storage/room/defining-data
+- Referencia de la anotación Entity: https://developer.android.com/reference/kotlin/androidx/room/Entity
+- Acceder a datos con DAOs: https://developer.android.com/training/data-storage/room/accessing-data
+
+(Revisa cada punto en las páginas de arriba y reescribelo con tus palabras antes de entregar. Para los puntos extra, publica este resumen en el foro de Notion con las mismas referencias.)
